@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Build output
+.output/
+dist/
+.nitro/
+.tanstack/
+.vinxi/
+.wrangler/
+.vercel/
+.netlify/
+
+# Environment and secrets — never commit real keys
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+
+# Logs and tooling
+*.log
+npm-debug.log*
+coverage/
+.eslintcache
+
+# Editors and OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
