@@ -238,23 +238,32 @@ for this repository instead.
 
 ## How it works
 
-```text
-Decision intake (browser)
-   │  decision + stage + budget + risk + horizon
-   │  + seats + per-seat provider + optional attachment text
-   ▼
-conveneCouncil: TanStack Start server function
-   │  zod-validated input
-   ▼
-council-models.server.ts: direct provider calls over fetch
-   │  ┌─ all seats on the default provider → one call returns the whole report
-   │  └─ mixed board → one call per seat (parallel, per-seat fallback)
-   │                   + a synthesis call on the default provider
-   ▼
-normalizeBoardResult: clamps scores, whitelists enums, keeps only seated roles
-   ▼
-Decision report UI + browser history
+```mermaid
+flowchart TD
+    intake["Decision intake<br/>(browser)"]
+    fn["conveneCouncil<br/>server function"]
+    mode{"All seats on the<br/>default provider?"}
+    single["One call returns<br/>the whole report"]
+    seats["One call per seat,<br/>in parallel, each on<br/>its own provider"]
+    synth["Synthesis call on<br/>the default provider"]
+    norm["normalizeBoardResult<br/>clamps scores,<br/>whitelists enums,<br/>keeps seated roles"]
+    ui["Decision report<br/>+ browser history"]
+
+    intake -->|"decision and context,<br/>seats and providers,<br/>attachment text"| fn
+    fn -->|"zod-validated input"| mode
+    mode -->|"yes"| single
+    mode -->|"no (mixed board)"| seats
+    seats -->|"seat opinions"| synth
+    single --> norm
+    synth --> norm
+    norm --> ui
+
+    classDef provider stroke-dasharray: 5 4
+    class single,seats,synth provider
 ```
+
+Dashed boxes are calls to the AI providers, made with plain `fetch` from `council-models.server.ts`.
+A seat whose provider fails or has no key is answered by the default provider instead.
 
 ### Report contract
 
